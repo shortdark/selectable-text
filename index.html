@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width">
+	<title>Wrap HTML tags around selected text</title>
+
+<style>
+	
+	p, h1, h2, form, textarea, ul, div {
+		width: 500px;
+		display: block;
+		margin: 10px auto;
+	}
+	textarea {
+		font-size: 16px;
+	}
+	
+	#previewdiv{
+		border: 1px solid red;
+		padding: 10px;
+	}
+	
+</style>
+
+</head>
+<body onload="PreviewHTML();">
+	
+<script type="text/javascript">
+<!--
+var myswitch = new Array();
+myswitch['b'] = 0;
+myswitch['i'] = 0;
+myswitch['u'] = 0;
+myswitch['p'] = 0;
+
+	function formatText(el,tag,word) {
+  	if (el.setSelectionRange) {
+  		if( el.selectionStart < el.selectionEnd ){
+  			// This works...
+  			if(tag == 'p'){
+  				el.value = el.value.substring(0,el.selectionStart) + "\r\n\r\n<" + tag + ">" + el.value.substring(el.selectionStart,el.selectionEnd) + "</" + tag + ">\r\n\r\n" + el.value.substring(el.selectionEnd,el.value.length);
+  			}else{
+	 				el.value = el.value.substring(0,el.selectionStart) + "<" + tag + ">" + el.value.substring(el.selectionStart,el.selectionEnd) + "</" + tag + ">" + el.value.substring(el.selectionEnd,el.value.length);
+	 			}
+ 			}else{
+ 				if(1 != myswitch[tag]){
+ 					// This should work now too...
+ 					if(tag == 'p'){
+ 						el.value = el.value.substring(0,el.selectionStart) + "\r\n\r\n<" + tag + ">" + el.value.substring(el.selectionStart,el.value.length);
+ 					}else{
+	 					el.value = el.value.substring(0,el.selectionStart) + "<" + tag + ">" + el.value.substring(el.selectionStart,el.value.length);
+	 				}
+ 					// Flick a switch so that the next instance of the tag closes it!
+ 					myswitch[tag] = 1;
+ 					ChangeButton(tag, word);
+ 				}else{
+ 					if(tag == 'p'){
+	 					el.value = el.value.substring(0,el.selectionStart) + "</" + tag + ">\r\n\r\n" + el.value.substring(el.selectionStart,el.value.length);
+	 				}else{
+	 					el.value = el.value.substring(0,el.selectionStart) + "</" + tag + ">" + el.value.substring(el.selectionStart,el.value.length);
+	 				}
+ 					// Reset switch...
+ 					myswitch[tag] = 0;
+ 					ChangeButton(tag, word);
+ 				}
+ 			}
+  	} else {
+  		// For older versions of IE and browsers that don't support setSelectionRange...
+  			var selectedText = document.selection.createRange().text;
+        if (selectedText != "" && 0 < selectedText.length) {
+        	if(tag == 'p'){
+        		document.selection.createRange().text = "\r\n\r\n<" + tag + ">" + selectedText + "</" + tag + ">\r\n\r\n";
+        	}else{
+            document.selection.createRange().text = "\r\n\r\n<" + tag + ">" + selectedText + "</" + tag + ">\r\n\r\n";
+          }
+        }else{
+        	if(1 != myswitch[tag]){
+        		if(tag == 'p'){
+        			document.selection.createRange().text = "\r\n\r\n<" + tag + ">";
+        		}else{
+		        	document.selection.createRange().text = "<" + tag + ">";
+		        }
+	        	myswitch[tag] = 1;
+	        	ChangeButton(tag, word);
+	        }else{
+	        	if(tag == 'p'){
+	        		document.selection.createRange().text = "</" + tag + ">\r\n\r\n";
+	        	}else{
+		        	document.selection.createRange().text = "</" + tag + ">";
+		        }
+	        	myswitch[tag] = 0;
+	        	ChangeButton(tag, word);
+	        }
+        }
+  	}
+  	PreviewHTML();
+  }
+  
+  function ChangeButton(tag, word) {
+	  // Change the button
+	  if(document.getElementById("but"+tag).value != "/"+word){
+	 		document.getElementById("but"+tag).value = "/"+word;
+	 	}else{
+	 		document.getElementById("but"+tag).value = word;
+	 	}
+	}
+//--
+  
+  function PreviewHTML() {
+  	var s = document.my_form.myta.value;
+	  if(s) {
+			s = s.replace(/:/g, '&#58;').replace(/\(/g, '&#40;').replace(/\)/g, '&#41;').replace(/=/g, '&#61;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+	    document.getElementById("previewdiv").innerHTML=s;
+	    // Hide the characters from the textarea
+	    //document.my_form.myta.value=s;
+	  }
+	}
+//-->
+</script>
+
+<h1>Wrap HTML tags around selected text</h1>
+
+<form id="my_form" name="my_form" onsubmit="return false">
+  <textarea id="myta" rows="15" cols="50" onfocus="PreviewHTML();" onblur="PreviewHTML();">Football is the world's most popular sport. It is played in more countries than any other game. In fact, FIFA (the Federation Internationale de Football Association) has more members than the United Nations.
+
+It is played by both males and females.</textarea><br>
+  <input type="button" name="butb" id="butb" value="bold" onclick="formatText(document.getElementById('myta'),'b','bold'); " />
+  <input type="button" name="buti" id="buti" value="italic" onclick="formatText(document.getElementById('myta'),'i', 'italic'); " />
+  <input type="button" name="butu" id="butu" value="underline" onclick="formatText(document.getElementById('myta'),'u','underline'); " />
+  <input type="button" name="butp" id="butp" value="p" onclick="formatText(document.getElementById('myta'),'p','p'); " />
+</form> 
+
+<h2>Preview</h2>
+  
+<div id="previewdiv"></div>
+
+<h2>Notes</h2>
+
+<ul>
+	<li>Modified pieces of javascript from the internet and created some of my own. </li>
+	<li>If you select some text in the textarea, below, then click a tag the tag should wrap around it.</li>
+	<li>I added the extra fuctionality so that if you click somewhere in the text without selecting text then click a tag, it should just be the opening tag that appears where you made the click.</li>
+	<li>Then, if just the opening tag is there the next button click of the same tag should close the tag.</li>
+	<li>Added a preview button which writes to a DIV below the buttons.</li>
+	<li>Created another function to change the value of the button when open-ended tags are created and closed.</li>
+	<li>Added "p" to "b", "i" and "u"; I've made it so that the new paragraph is on it's own separate line within the textarea.</li>
+	<li>Removed the preview button and made the preview appear onload and update with tag click and focus/blur of the textarea.</li>
+</ul>
+
+<p>
+	<b>Need to work on</b> - test it out!
+</p>
+
+<p>The "selected text tag wrapping" on FF/IE/Chrome/Safari on PC, Safari on iPhone, and Opera Mobile/native web browser on Android (but, it was almost impossible to make a selection and click the button with the text selected on Android).</p>
+
+</body>
+</html>
